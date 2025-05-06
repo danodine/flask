@@ -32,6 +32,14 @@ def add():
         return render_template('index.html', posts=blog_posts)
     return render_template('add.html')
 
+@app.route('/delete/<int:post_id>', methods=['POST'])
+def delete(post_id):
+    blog_posts = read_file()
+    posts = [post for post in blog_posts if post['id'] != post_id]
+    write_file(posts)
+    blog_posts_new = read_file()
+    return render_template('index.html', posts=blog_posts_new)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
