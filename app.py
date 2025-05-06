@@ -1,20 +1,36 @@
 from flask import Flask, render_template, request
 import json
 
-with open('posts.json', 'r', encoding='utf-8') as file:
-    blog_posts = json.load(file)
+def read_file():
+    with open('posts.json', 'r', encoding='utf-8') as file:
+        return json.load(file)
 
-print(blog_posts)
-
-
+def write_file(file):
+    with open('posts.json', 'w', encoding='utf-8') as new_file:
+        json.dump(file, new_file, ensure_ascii=False, indent=4)
 
 app = Flask(__name__)
 
 
 @app.route('/')
 def index():
+    blog_posts = read_file()
     # add code here to fetch the job posts from a file
     return render_template('index.html', posts=blog_posts)
+
+
+@app.route('/add', methods=['GET', 'POST'])
+def add():
+    blog_posts = read_file()
+    if request.method == 'POST':
+        author = request.form.get('author')
+        title = request.form.get('title')
+        content = request.form.get('content')
+        new_id = blog_posts[-1]["id"] + 1
+        blog_posts.append({"id": new_id, "author": author, "title": title, "content": content})
+        write_file(blog_posts)
+        return render_template('index.html', posts=blog_posts)
+    return render_template('add.html')
 
 
 if __name__ == '__main__':
